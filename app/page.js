@@ -13,6 +13,7 @@ import {
   Row,
   Col,
   message,
+  Spin
 } from "antd";
 import Image from "next/image";
 import useCart from "../app/hooks/useCart";
@@ -21,6 +22,7 @@ import QRCode from "qrcode.react";
 export default function HomePage() {
 
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [movieSelectedtohomePage, setMovieSelectedtohomePage] = useState(() => {
     if (typeof window !== 'undefined') {
       const storedMovieList = localStorage.getItem('movieList');
@@ -62,21 +64,26 @@ export default function HomePage() {
 
   const getMoviebyName = async (name, page) => {
     const input = name.trim();
+    setIsLoading(true);
     try {
       const response = await fetch(
         `https://api.themoviedb.org/3/search/movie?api_key=486a8087c67c0efa61f4e0c29a18d028&query=${name}&page=${page}`
       );
       const data = await response.json();
       const results = data.results;
-
+  
       setMovies(results);
       if (input && results.length === 0) {
         setNotFound(true);
       } else {
         setNotFound(false);
       }
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100000); // delay setting isLoading to false by 5 seconds
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Failed to fetch movies:', error);
+      setIsLoading(false);
     }
   };
 
@@ -108,7 +115,7 @@ const handleMovieSelect = (movie) => {
     setMovieSelectedtohomePage([]);
   };
 
-  const handlePageChange = (page, pageSize) => {
+  const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
@@ -163,6 +170,21 @@ const handleMovieSelect = (movie) => {
 
     return () => clearTimeout(timeout);
   }, [currentPage, name]);
+
+  useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        const response = await fetch('https://api.themoviedb.org/3/movie/157336?api_key=486a8087c67c0efa61f4e0c29a18d028');
+        const data = await response.json();
+        setMovies([data]); // set the movie data as an array
+        console.log('Data Movie first fetch', data);
+      } catch (error) {
+        console.error('Failed to fetch movie:', error);
+      }
+    };
+
+    fetchMovie();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -310,6 +332,13 @@ const handleMovieSelect = (movie) => {
           </div>
         </div>
         {/* Movie list */}
+        {isLoading ? (
+          <div className="flex justify-center items-center">
+            <Spin size="large" />
+          </div>
+        ) : (
+          ""
+        )}
         <div className="min-h-screen flex flex-col justify-center items-center">
           {Array.isArray(movies) && movies.length > 0 ? (
             <>
