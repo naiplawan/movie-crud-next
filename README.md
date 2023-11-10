@@ -28,6 +28,10 @@ npm install
 
 To start the development server, run the following command:
 ```
-npm run dev
+npm run start
 ```
 This will start the development server and open the app in your default browser.
+
+## Demo 
+<img width="1010" alt="Screenshot 2566-11-10 at 11 18 15" src="https://github.com/naiplawan/movie-crud-next/assets/124332198/75e3413f-b498-4dd3-a11e-2ae58f992b98">
+
