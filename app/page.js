@@ -19,10 +19,14 @@ import useCart from "../app/hooks/useCart";
 import QRCode from "qrcode.react";
 
 export default function HomePage() {
+
   const [open, setOpen] = useState(false);
   const [movieSelectedtohomePage, setMovieSelectedtohomePage] = useState(() => {
-    const storedMovieList = localStorage.getItem("movieSelectedtohomePage");
-    return storedMovieList ? JSON.parse(storedMovieList) : [];
+    if (typeof window !== 'undefined') {
+      const storedMovieList = localStorage.getItem('movieList');
+      return storedMovieList ? JSON.parse(storedMovieList) : [];
+    }
+    return [];
   });
 
   const [totalPrice, setTotalPrice] = useState(0);
@@ -83,27 +87,22 @@ export default function HomePage() {
     setName(event.target.value);
   };
 
-  const handleMovieSelect = (movie) => {
-    const existingMovieIndex = movieSelectedtohomePage.findIndex(
-      (m) => m.id === movie.id
-    );
+const handleMovieSelect = (movie) => {
+  const existingMovieIndex = movieSelectedtohomePage.findIndex(
+    (m) => m.id === movie.id
+  );
 
-    if (existingMovieIndex !== -1) {
-      const updatedMovieList = [...movieSelectedtohomePage];
-      updatedMovieList[existingMovieIndex].quantity += 1;
-      setMovieSelectedtohomePage(updatedMovieList);
-    } else {
-      setMovieSelectedtohomePage((prevMovies) => [
-        ...prevMovies,
-        { movie, id: movie.id, quantity: 1 },
-      ]);
-    }
-
-    localStorage.setItem(
-      "movieSelectedtohomePage",
-      JSON.stringify(movieSelectedtohomePage)
-    );
-  };
+  if (existingMovieIndex !== -1) {
+    const updatedMovieList = [...movieSelectedtohomePage];
+    updatedMovieList[existingMovieIndex].quantity += 1;
+    setMovieSelectedtohomePage(updatedMovieList);
+  } else {
+    setMovieSelectedtohomePage((prevMovies) => [
+      ...prevMovies,
+      { movie, id: movie.id, quantity: 1 },
+    ]);
+  }
+};
 
   const clearCart = () => {
     setMovieSelectedtohomePage([]);
@@ -127,11 +126,6 @@ export default function HomePage() {
     const updatedMovieList = [...movieSelectedtohomePage];
     updatedMovieList.splice(index, 1);
     setMovieSelectedtohomePage(updatedMovieList);
-
-    localStorage.setItem(
-      "movieSelectedtohomePage",
-      JSON.stringify(updatedMovieList)
-    );
   };
 
   const clickOrder = () => {
@@ -169,6 +163,16 @@ export default function HomePage() {
 
     return () => clearTimeout(timeout);
   }, [currentPage, name]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(
+        "movieSelectedtohomePage",
+        JSON.stringify(movieSelectedtohomePage)
+      );
+    }
+  }, [movieSelectedtohomePage]);
+
 
   // Calculate total price and discount
   useEffect(() => {
