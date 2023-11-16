@@ -162,7 +162,7 @@ export default function HomePage() {
     });
   };
 
-  // Fetch movie by name
+  // Fetch movie by name function
   useEffect(() => {
     const timeout = setTimeout(() => {
       getMoviebyName(name, currentPage);
